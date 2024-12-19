@@ -1,3 +1,5 @@
+import { Login } from "../pages/login.jsx";
+
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
@@ -21,13 +23,29 @@ const getState = ({ getStore, getActions, setStore }) => {
 				getActions().changeColor(0, "green");
 			},
 
-			getMessage: async () => {
+			login: async (email,password) => {
+				console.log(email,password)
 				try{
 					// fetching data from the backend
-					const resp = await fetch(process.env.BACKEND_URL + "/api/hello")
-					const data = await resp.json()
-					setStore({ message: data.message })
-					// don't forget to return something, that is how the async resolves
+					const response = await fetch(process.env.BACKEND_URL + "api/login",{
+						method:"POST",
+						headers:{
+							"Content-Type":"application/json"
+						},
+						body: JSON.stringify({
+							email:email,
+							password:password
+						})
+					})
+					if(!response.ok){
+						throw new Error("Failed to login")
+					}
+					const data = await response.json()
+
+					localStorage.setItem("accessToken",data.access_token)
+					
+					console.log("User:",data);
+
 					return data;
 				}catch(error){
 					console.log("Error loading message from backend", error)
