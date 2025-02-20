@@ -1,71 +1,70 @@
-import { Login } from "../pages/login.jsx";
-
 const getState = ({ getStore, getActions, setStore }) => {
 	return {
 		store: {
 			message: null,
-			demo: [
-				{
-					title: "FIRST",
-					background: "white",
-					initial: "white"
-				},
-				{
-					title: "SECOND",
-					background: "white",
-					initial: "white"
-				}
-			]
+			token: localStorage.getItem("accessToken") || null,
 		},
 		actions: {
-			// Use getActions to call a function within a fuction
-			exampleFunction: () => {
-				getActions().changeColor(0, "green");
-			},
-
-			login: async (email,password) => {
-				console.log(email,password)
-				try{
-					// fetching data from the backend
-					const response = await fetch(process.env.BACKEND_URL + "api/login",{
-						method:"POST",
-						headers:{
-							"Content-Type":"application/json"
+			signup: async (email, password, first_name, last_name) => {
+				try {
+					const response = await fetch(process.env.BACKEND_URL + "api/signup", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
 						},
 						body: JSON.stringify({
-							email:email,
-							password:password
+							email: email,
+							password: password,
+							first_name: first_name,
+							last_name: last_name
 						})
-					})
-					if(!response.ok){
-						throw new Error("Failed to login")
+					});
+
+					if (!response.ok) {
+						const data = await response.json();
+						throw new Error(data.msg || "Error during signup");
 					}
-					const data = await response.json()
 
-					localStorage.setItem("accessToken",data.access_token)
-					
-					console.log("User:",data);
+					return true;
+				} catch (error) {
+					console.error("Error during signup", error);
+					alert(error.message); 
+					return false;
+				}
+			},	
+			login: async (email, password) => {
+				try {
+					const response = await fetch(process.env.BACKEND_URL + "api/login", {
+						method: "POST",
+						headers: {
+							"Content-Type": "application/json"
+						},
+						body: JSON.stringify({
+							email: email,
+							password: password
+						})
+					});
 
-					return data;
-				}catch(error){
-					console.log("Error loading message from backend", error)
+					if (!response.ok) {
+						throw new Error("Failed to login");
+					}
+
+					const data = await response.json();
+					localStorage.setItem("accessToken", data.access_token);
+					setStore({ token: data.access_token });
+
+					return true; 
+				} catch (error) {
+					console.error("Error during login", error);
+					return false;
 				}
 			},
-			changeColor: (index, color) => {
-				//get the store
-				const store = getStore();
-
-				//we have to loop the entire demo array to look for the respective index
-				//and change its color
-				const demo = store.demo.map((elm, i) => {
-					if (i === index) elm.background = color;
-					return elm;
-				});
-
-				//reset the global store
-				setStore({ demo: demo });
+			logout: () => {
+				localStorage.removeItem("accessToken");
+				setStore({ token: null });
 			}
-		}
+		},
+		
 	};
 };
 

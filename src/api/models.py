@@ -5,11 +5,11 @@ db = SQLAlchemy()
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(80), unique=False, nullable=False)
-    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
+    password = db.Column(db.String(256), unique=False, nullable=False)
+    is_active = db.Column(db.Boolean(), unique=False, nullable=False, default=True) 
     first_name = db.Column(db.String(50), nullable=True) 
     last_name = db.Column(db.String(50), nullable=True)   
-    phone_number = db.Column(db.String(15), unique=True, nullable=True) 
+    phone_number = db.Column(db.String(15), unique=True, nullable=True)
 
     def __repr__(self):
         return f'<User {self.email}>'

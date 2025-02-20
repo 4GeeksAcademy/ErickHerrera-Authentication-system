@@ -7,18 +7,20 @@ import { Home } from "./pages/home";
 import { Login } from "./pages/login.jsx";
 import { Demo } from "./pages/demo";
 import { Single } from "./pages/single";
-import injectContext from "./store/appContext";
+import { Signup } from "./pages/Signup.jsx";
+import { Private } from "./pages/Private.jsx"; // Asegúrate de tener esta página creada
+import PrivateRoute from "./component/PrivateRoutes.js"; // Importar protección de rutas
 
 import { Navbar } from "./component/navbar";
 import { Footer } from "./component/footer";
 
-//create your first component
+// Inyectar contexto global
+import injectContext from "./store/appContext";
+
 const Layout = () => {
-    //the basename is used when your project is published in a subdirectory and not in the root of the domain
-    // you can set the basename on the .env file located at the root of this project, E.g: BASENAME=/react-hello-webapp/
     const basename = process.env.BASENAME || "";
 
-    if(!process.env.BACKEND_URL || process.env.BACKEND_URL == "") return <BackendURL/ >;
+    if (!process.env.BACKEND_URL || process.env.BACKEND_URL === "") return <BackendURL />;
 
     return (
         <div>
@@ -29,8 +31,17 @@ const Layout = () => {
                         <Route element={<Home />} path="/" />
                         <Route element={<Demo />} path="/demo" />
                         <Route element={<Login />} path="/login" />
+                        <Route element={<Signup />} path="/signup" />
                         <Route element={<Single />} path="/single/:theid" />
-                        <Route element={<h1>Not found!</h1>} />
+                        <Route
+                            path="/private"
+                            element={
+                                <PrivateRoute>
+                                    <Private />
+                                </PrivateRoute>
+                            }
+                        />
+                        <Route element={<h1>Not found!</h1>} path="*" />
                     </Routes>
                     <Footer />
                 </ScrollToTop>
